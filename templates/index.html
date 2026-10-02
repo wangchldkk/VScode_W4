@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <div class="card">
+        <h1>Weather Lookup</h1>
+
+        <form method="POST" action="/">
+          <label for="city">Enter a city</label>
+          <div class="search-row">
+            <input
+              id="city"
+              name="city"
+              type="text"
+              value="{{ city or '' }}"
+              placeholder="e.g. Copenhagen"
+              required
+            />
+            <button type="submit">Check</button>
+          </div>
+        </form>
+
+        {% if error %}
+          <div class="message error">{{ error }}</div>
+        {% endif %}
+
+        {% if result %}
+          <section class="weather-panel">
+            <div class="weather-header">
+              <div>
+                <p class="label">Current weather</p>
+                <h2>{{ result.city }}, {{ result.country }}</h2>
+              </div>
+              <div class="icon" aria-label="Weather icon">{{ result.icon }}</div>
+            </div>
+
+            <div class="temperature-row">
+              <span class="temperature">{{ result.temperature }}°C</span>
+              <span class="description">{{ result.description }}</span>
+            </div>
+
+            <div class="stats">
+              <div>
+                <span class="stat-label">Humidity</span>
+                <strong>{{ result.humidity }}%</strong>
+              </div>
+              <div>
+                <span class="stat-label">Wind</span>
+                <strong>{{ result.wind }} km/h</strong>
+              </div>
+            </div>
+          </section>
+        {% endif %}
+      </div>
+    </main>
+  </body>
+</html>
