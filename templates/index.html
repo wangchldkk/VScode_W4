@@ -55,6 +55,14 @@
                 <strong>{{ result.wind }} km/h</strong>
               </div>
             </div>
+
+            <div class="air-quality-box" style="border-color: {{ result.aqi_color }}; background: rgba(15, 23, 42, 0.35);">
+              <div>
+                <span class="stat-label">Air quality</span>
+                <strong>{{ result.aqi or 'N/A' }}</strong>
+              </div>
+              <div class="aqi-status" style="color: {{ result.aqi_color }};">{{ result.aqi_label }}</div>
+            </div>
           </section>
 
           {% if result.forecast %}

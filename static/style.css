@@ -143,6 +143,22 @@ h2 {
   margin-bottom: 6px;
 }
 
+.air-quality-box {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.aqi-status {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
 .forecast-panel {
   margin-top: 24px;
   background: rgba(30, 41, 59, 0.9);

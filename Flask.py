@@ -84,6 +84,23 @@ def build_forecast(daily_data):
     return forecast
 
 
+def air_quality_summary(aqi_value):
+    if aqi_value is None:
+        return {"label": "Unknown", "color": "#94a3b8"}
+
+    if aqi_value <= 50:
+        return {"label": "Good", "color": "#22c55e"}
+    if aqi_value <= 100:
+        return {"label": "Moderate", "color": "#facc15"}
+    if aqi_value <= 150:
+        return {"label": "Unhealthy for sensitive groups", "color": "#f97316"}
+    if aqi_value <= 200:
+        return {"label": "Unhealthy", "color": "#ef4444"}
+    if aqi_value <= 300:
+        return {"label": "Very unhealthy", "color": "#a855f7"}
+    return {"label": "Hazardous", "color": "#7f1d1d"}
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     city = ""
@@ -123,6 +140,15 @@ def home():
             current = weather_data.get("current", {})
             daily = weather_data.get("daily", {})
 
+            aqi_url = (
+                "https://air-quality-api.open-meteo.com/v1/air-quality?"
+                f"latitude={lat}&longitude={lon}&current=us_aqi,pm10,pm2_5&timezone=auto"
+            )
+            aqi_data = fetch_json(aqi_url)
+            aqi_current = aqi_data.get("current", {})
+            aqi_value = aqi_current.get("us_aqi")
+            aqi_summary = air_quality_summary(aqi_value)
+
             code = int(current.get("weather_code", 0))
             icon, description = weather_code_info(code)
 
@@ -134,6 +160,9 @@ def home():
                 "wind": round(float(current.get("wind_speed_10m", 0)), 1),
                 "description": description,
                 "icon": icon,
+                "aqi": aqi_value,
+                "aqi_label": aqi_summary["label"],
+                "aqi_color": aqi_summary["color"],
                 "forecast": build_forecast(daily),
             }
 
