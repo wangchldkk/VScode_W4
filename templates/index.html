@@ -56,6 +56,22 @@
               </div>
             </div>
           </section>
+
+          {% if result.forecast %}
+            <section class="forecast-panel">
+              <p class="label">Next 10 days</p>
+              <div class="forecast-grid">
+                {% for day in result.forecast %}
+                  <div class="forecast-day">
+                    <div class="forecast-day-name">{{ day.day }}</div>
+                    <div class="forecast-icon" aria-label="Weather icon">{{ day.icon }}</div>
+                    <div class="forecast-temp">{{ day.min_temp }}° / {{ day.max_temp }}°</div>
+                    <div class="forecast-rain">Rain {{ day.precipitation }}%</div>
+                  </div>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
         {% endif %}
       </div>
     </main>

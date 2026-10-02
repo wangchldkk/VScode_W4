@@ -1,6 +1,7 @@
 import json
 import urllib.parse
 import urllib.request
+from datetime import datetime
 
 from flask import Flask, render_template, request
 
@@ -47,6 +48,42 @@ def fetch_json(url: str):
         return json.loads(response.read().decode("utf-8"))
 
 
+def build_forecast(daily_data):
+    if not daily_data:
+        return []
+
+    forecast = []
+    times = daily_data.get("time") or []
+    codes = daily_data.get("weather_code") or []
+    max_temps = daily_data.get("temperature_2m_max") or []
+    min_temps = daily_data.get("temperature_2m_min") or []
+    precip_probs = daily_data.get("precipitation_probability_max") or []
+
+    for index, day in enumerate(times):
+        try:
+            code = int(codes[index]) if index < len(codes) else 0
+            max_temp = round(float(max_temps[index]), 1) if index < len(max_temps) else 0.0
+            min_temp = round(float(min_temps[index]), 1) if index < len(min_temps) else 0.0
+            precip = int(precip_probs[index]) if index < len(precip_probs) else 0
+            icon, description = weather_code_info(code)
+            forecast_date = datetime.fromisoformat(str(day))
+            forecast.append(
+                {
+                    "date": day,
+                    "day": forecast_date.strftime("%a"),
+                    "icon": icon,
+                    "description": description,
+                    "max_temp": max_temp,
+                    "min_temp": min_temp,
+                    "precipitation": precip,
+                }
+            )
+        except (TypeError, ValueError, IndexError):
+            continue
+
+    return forecast
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     city = ""
@@ -79,10 +116,12 @@ def home():
             weather_url = (
                 "https://api.open-meteo.com/v1/forecast?"
                 f"latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,"
-                "wind_speed_10m,weather_code&timezone=auto"
+                "wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,"
+                "precipitation_probability_max&timezone=auto&forecast_days=10"
             )
             weather_data = fetch_json(weather_url)
             current = weather_data.get("current", {})
+            daily = weather_data.get("daily", {})
 
             code = int(current.get("weather_code", 0))
             icon, description = weather_code_info(code)
@@ -95,6 +134,7 @@ def home():
                 "wind": round(float(current.get("wind_speed_10m", 0)), 1),
                 "description": description,
                 "icon": icon,
+                "forecast": build_forecast(daily),
             }
 
         except Exception:
