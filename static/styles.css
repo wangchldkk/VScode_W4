@@ -108,6 +108,14 @@ button:active {
   grid-column: span 2;
 }
 
+.power {
+  grid-column: 2 / span 2;
+}
+
+.root {
+  grid-column: 1 / span 4;
+}
+
 @media (max-width: 420px) {
   .calculator {
     padding: 16px;

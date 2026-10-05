@@ -11,7 +11,6 @@ from pydantic import BaseModel
 class CalcRequest(BaseModel):
     expression: str
 
-
 app = FastAPI(title="Modern Calculator", version="1.0.0")
 
 
@@ -20,7 +19,7 @@ def safe_eval_expression(expression: str) -> float:
         raise ValueError("Expression is required.")
 
     cleaned = expression.strip().replace("^", "**")
-    if not re.fullmatch(r"[0-9+\-*/().%\s]+", cleaned):
+    if not re.fullmatch(r"(?:[0-9+\-*/().%\s]|sqrt)+", cleaned):
         raise ValueError("Expression contains unsupported characters.")
 
     tree = ast.parse(cleaned, mode="eval")
@@ -60,6 +59,16 @@ def safe_eval_expression(expression: str) -> float:
             if isinstance(node.op, ast.USub):
                 return -operand
             raise ValueError("Unsupported unary operation.")
+
+        if isinstance(node, ast.Call):
+            if (
+                isinstance(node.func, ast.Name)
+                and node.func.id == "sqrt"
+                and len(node.args) == 1
+                and not node.keywords
+            ):
+                return math.sqrt(evaluate(node.args[0]))
+            raise ValueError("Unsupported function.")
 
         raise ValueError("Unsupported expression structure.")
 

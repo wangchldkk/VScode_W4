@@ -9,7 +9,7 @@ const updateDisplay = () => {
 
 const appendValue = (value) => {
   if (value === '.') {
-    const tokens = expression.split(/[-+*/%]/);
+    const tokens = expression.split(/[-+*/%^]/);
     const lastToken = tokens[tokens.length - 1];
     if (lastToken.includes('.')) return;
   }
@@ -76,6 +76,18 @@ buttons.forEach((button) => {
     }
 
     if (action === 'equals') {
+      await computeExpression();
+      return;
+    }
+
+    if (action === 'sqrt') {
+      if (!expression.trim()) {
+        resultEl.textContent = 'Enter a number first.';
+        return;
+      }
+
+      expression = `sqrt(${expression})`;
+      updateDisplay();
       await computeExpression();
       return;
     }
